@@ -89,7 +89,7 @@ function createRandomCircles() {
             if(velHistory.length<10){
                 velHistory.push(vel);
                 velAverage = vel;
-            } else{ /
+            } else{ 
                 velHistory.shift();
                 velHistory.push(vel);
                 total = 0;
