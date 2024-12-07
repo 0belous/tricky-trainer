@@ -5,7 +5,7 @@ let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
 let movementX = 0;
 let movementY = 0;
-let mode = 3;
+let mode = 0;
 let total = 0;
 let slideVelX = 0.0;
 let slideVelY = 0.0;
@@ -15,6 +15,13 @@ let velAverage = 0.0;
 let circleCount = 10;
 let screenChanged = 0;
 let velHistory = [];
+let clickedCircles = 0;
+let tutorialMode = getCookie("tutorial");
+if (tutorialMode === null || tutorialMode === true) {
+    setCookie("tutorial", "true", 30);
+    tutorialMode = true;
+}
+let tutStage = 0;
 
 function showScreenAlert(message, show = true){
     if (show) {
@@ -51,6 +58,15 @@ function clampMousePos(inX, inHeight=false, inOffset=0){
             return inX;
     }
 }
+
+document.addEventListener('click', (event) => {
+    document.querySelectorAll('.random-circle').forEach(circle => {
+        if(circle.style.backgroundColor == "blue"){ // more efficient than actual collision check
+            circle.classList.add('clicked');
+            clickedCircles++;
+        }
+    });
+});
 
 document.getElementById("circleCountSlider").addEventListener('input', function(event) {
     updateCircleCountDisplay(event.target.value);
@@ -195,12 +211,77 @@ function checkCollisions() {
             document.querySelectorAll('.random-circle').forEach(circle => circle.remove());
             createRandomCircles();
         }
+
         screenChanged = window.innerWidth+window.innerHeight;
+        if (tutorialMode == true) {
+            hidePrompts();
+            switch(tutStage) {
+                case 0:
+                    document.getElementById('topbar').classList.add('hidden');
+                    updateCircleCountDisplay(3);
+                    document.getElementById('circleCountSlider').value = 3;
+                    tutStage = 1;
+                    break;
+                case 1:
+                    document.getElementById('tut1').classList.remove('hidden');
+                    mode = 0;
+                    if(clickedCircles==3){
+                        tutStage = 2;
+                        clickedCircles = 0;
+                    }
+                    break;
+                case 2:
+                    document.getElementById('topbar').classList.remove('hidden')
+                    document.querySelectorAll('.modeSel').forEach(mode => mode.classList.add('hidden'));
+                    document.getElementById('tut2').classList.remove('hidden');
+                    if(circleCount == 5){
+                        tutStage = 3;
+                    }
+                    break;
+                case 3:
+                    if(circleCount != 5){
+                        updateCircleCountDisplay(5)
+                        document.getElementById('circleCountSlider').value = 5;
+                    }
+                    document.getElementById('tut3').classList.remove('hidden');
+                    if(clickedCircles==5){
+                        tutStage = 4;
+                    }
+                    break;
+                case 4:
+                    document.getElementById('tut4').classList.remove('hidden');
+                    document.querySelectorAll('.modeSel').forEach(mode => mode.classList.remove('hidden'));
+                    if(mode == 2){
+                        tutStage = 5;
+                    }
+                    break;
+                case 5:
+                    if(clickedCircles ==5){
+                        updateCircleCountDisplay(5)
+                        document.getElementById('circleCountSlider').value = 5;
+                        clickedCircles++;
+                    }
+                    document.getElementById('tut5').classList.remove('hidden');
+                    if(clickedCircles == 11){
+                        document.getElementById('tut5').classList.add('hidden');
+                        tutorialMode = false;
+                        clickedCircles = 0;
+                        setCookie("tutorial", "false", 30);
+                    }
+                    break;
+                    
+            }
+        } else {
+            aspectRatioCheck();
+        }
         checkCollisions();
-        aspectRatioCheck();
         requestAnimationFrame(update);
     }
 })();
+
+function hidePrompts(){
+    document.querySelectorAll('.tutPrompt').forEach(tutorial => tutorial.classList.add('hidden'));
+}
 
 function setMode(modeIn){
     mode = modeIn;

@@ -46,7 +46,7 @@
       .topbar > *{
         margin-right: 10px;
       }
-      #screenAlert{
+      .alert{
         position: absolute;
         transform: translate(-50%, -50%);
         top: 50%;
@@ -58,18 +58,34 @@
         border: 1px solid black;
       }
       .hidden{
-        display: none;
+        display: none!important;
+      }
+      .clicked{
+        background-color: blue!important;
+      }
+      .tutPrompt{
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgba(226, 226, 226, 0.301);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid black;
       }
     </style>
 </head>
 <body>
-  <div class="topbar">
-    <button onclick="setMode(0)">Normal</button>
-    <button onclick="setMode(1)">Wobbly</button>
-    <button onclick="setMode(2)">Wonky</button>
-    <button onclick="setMode(3)">Icy</button>
+  <div class="topbar" id="topbar">
+    <button class="modeSel" onclick="setMode(0)">Normal</button>
+    <button class="modeSel" onclick="setMode(1)">Wobbly</button>
+    <button class="modeSel" onclick="setMode(2)">Wonky</button>
+    <button class="modeSel" onclick="setMode(3)">Icy</button>
     <label for="circleCountSlider">Circle Count:</label>
-    <input type="range" id="circleCountSlider" min="1" max="100" value="10" oninput="updateCircleCountDisplay(this.value)">
+    <input type="range" id="circleCountSlider" min="1" max="20" value="10" oninput="updateCircleCountDisplay(this.value)">
     <span id="circleCountDisplay">10</span>
   </div>
   <div class="nocursor" onclick="requestPointerLock()">
@@ -78,12 +94,32 @@
       <img id="cursor" draggable="false" src="./cursor.svg">
     </div>
   </div>
-  <div id="screenAlert" class="hidden">
+  <div id="screenAlert" class="hidden alert">
     <h1>There is an issue with your screen size:</h1>
     <strong id="message"></strong>
     <p>Small screen sizes provide a competitive advantage so leaderboard submissions will be disabled.</p>
     <p>If you believe your screen size should be compatible, <a target="_blank" href="https://github.com/0belous/cursor-things/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%5BBug%5D+Your+issue+title">create a bug report</a></p>
     <button onClick="ignoreAlert()">Ignore</button> <button onClick="dontShowAgain();">Don't show again</button>
+  </div>
+  <div class="hidden tutPrompt" id="tut1">
+    <h1>Welcome!</h1>
+    <h2>Click the circles.</h2>
+  </div>
+  <div class="hidden tutPrompt" id="tut2">
+    <h1>Lets add some more</h1>
+    <h2>Press esc to release your mouse and use the nav bar to set the number of circles to 5</h2>
+  </div>
+  <div class="hidden tutPrompt" id="tut3">
+    <h1>Great!</h1>
+    <h2>Click the circles again.</h2>
+  </div>
+  <div class="hidden tutPrompt" id="tut4">
+    <h1>Cool!</h1>
+    <h2>Lets up the difficulty and set it to Wonky mode</h2>
+  </div>  
+  <div class="hidden tutPrompt" id="tut5">
+    <h1>Thats it!</h1>
+    <h2>Now click the circles as fast as possible!</h2>
   </div>
   <script>
       function setCookie(name, value, days) {
