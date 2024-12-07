@@ -46,6 +46,20 @@
       .topbar > *{
         margin-right: 10px;
       }
+      #screenAlert{
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        background-color: rgb(241, 241, 241);
+        padding: 20px;
+        z-index: 5;
+        border-radius: 4px;
+        border: 1px solid black;
+      }
+      .hidden{
+        display: none;
+      }
     </style>
 </head>
 <body>
@@ -64,6 +78,46 @@
       <img id="cursor" draggable="false" src="./cursor.svg">
     </div>
   </div>
+  <div id="screenAlert" class="hidden">
+    <h1>There is an issue with your screen size:</h1>
+    <strong id="message"></strong>
+    <p>Small screen sizes provide a competitive advantage so leaderboard submissions will be disabled.</p>
+    <p>If you believe your screen size should be compatible, <a target="_blank" href="https://github.com/0belous/cursor-things/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%5BBug%5D+Your+issue+title">create a bug report</a></p>
+    <button onClick="ignoreAlert()">Ignore</button> <button onClick="dontShowAgain();">Don't show again</button>
+  </div>
+  <script>
+      function setCookie(name, value, days) {
+          const date = new Date();
+          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+          const expires = "expires=" + date.toUTCString();
+          document.cookie = `${name}=${value}; ${expires}; path=/`;
+      }
+
+      function getCookie(name) {
+          const cookieArr = document.cookie.split("; ");
+          for (let i = 0; i < cookieArr.length; i++) {
+              const cookiePair = cookieArr[i].split("=");
+              if (cookiePair[0] === name) {
+                  return cookiePair[1];
+              }
+          }
+          return null;
+      }
+
+      function deleteCookie(name) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      }
+
+      let tempHide = false;
+      function ignoreAlert() {
+          tempHide = true;
+          document.getElementById("screenAlert").classList.add('hidden');
+      }
+      function dontShowAgain(){
+        setCookie('promptAccepted', 'true', 7);
+        document.getElementById("screenAlert").classList.add('hidden');
+      }
+  </script>
   <script src="./index.js"></script>
 </body>
 </html>

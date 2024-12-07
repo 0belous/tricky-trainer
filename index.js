@@ -13,12 +13,38 @@ let slidePosX = 0.0;
 let slidePosY = 0.0;
 let velAverage = 0.0;
 let circleCount = 10;
+let screenChanged = 0;
 let velHistory = [];
 
-function clampMousePos(inX, inOffset=0){
+function showScreenAlert(message, show = true){
+    if (show) {
+        if(getCookie("promptAccepted") !== "true" && !tempHide){
+            document.getElementById("screenAlert").classList.remove('hidden');
+            document.getElementById("message").textContent = message;
+        }
+    } else {
+        document.getElementById("screenAlert").classList.add('hidden');
+    }
+}
+
+function aspectRatioCheck(){
+    if(window.innerWidth < (screen.width - 300) || window.innerHeight < (screen.height - 300)){
+        showScreenAlert("Fullscreen your browser, or disable any toolbars/sidebars that make this website smaller.");
+    } else if(screen.width < 1280 || screen.height < 720){
+        showScreenAlert("Monitors less than 720p are not supported");
+    } else if((screen.width / screen.height) < 1.5){
+        showScreenAlert("Please use a widescreen monitor");
+    } else {
+        showScreenAlert("", false); 
+    }
+}
+
+function clampMousePos(inX, inHeight=false, inOffset=0){
     switch(true){
-        case inX>window.innerWidth+inOffset:
+        case inX>window.innerWidth+inOffset&&inHeight==false:
             return window.innerWidth+inOffset;
+        case inX>window.innerHeight+inOffset&&inHeight==true:
+            return window.innerHeight+inOffset;
         case inX<10+inOffset:
             return 10+inOffset;
         default:
@@ -42,6 +68,7 @@ function setCircleCount(count) {
 }
 
 function createRandomCircles() {
+    const margin = 50;
     for (let i = 0; i < circleCount; i++) {
         let circle = document.createElement('div');
         circle.className = 'random-circle';
@@ -51,8 +78,8 @@ function createRandomCircles() {
         circle.style.position = 'absolute';
         circle.style.borderRadius = '50%';
         circle.style.zIndex = '1';
-        circle.style.left = Math.random() * window.innerWidth + 'px';
-        circle.style.top = (Math.random() * (window.innerHeight-60))+60 + 'px'; //offset for navbar
+        circle.style.left = Math.random() * (window.innerWidth - margin * 2) + margin + 'px';
+        circle.style.top = (Math.random() * (window.innerHeight - 60 - margin)) + 60 + 'px'; // offset for navbar and margin
         document.body.appendChild(circle);
     }
 }
@@ -106,7 +133,6 @@ function checkCollisions() {
     }
 
     function update() {
-        console.log(mouseX,mouseY,movementX,movementY)
         var currentTime = performance.now();
         lastTime = currentTime;
         if (mouseX && mouseY>50) {
@@ -126,20 +152,20 @@ function checkCollisions() {
             switch(mode){
                 case 0:
                     mouseX = clampMousePos(mouseX);
-                    mouseY = clampMousePos(mouseY, 50);
+                    mouseY = clampMousePos(mouseY, true, 50);
                     cursor.style.left = mouseX + 'px';
                     cursor.style.top = mouseY + 'px';
                     break;
                 case 1:
                     mouseX = clampMousePos(mouseX);
-                    mouseY = clampMousePos(mouseY, 50);
+                    mouseY = clampMousePos(mouseY, true, 50);
                     angle = Math.min(Math.max(velAverage*20 ,-90), 90);
                     cursor.style.left = mouseX + 'px';
                     cursor.style.top = mouseY + 'px';
                     break;
                 case 2:
                     mouseX = clampMousePos(mouseX);
-                    mouseY = clampMousePos(mouseY, 50);
+                    mouseY = clampMousePos(mouseY, true, 50);
                     angle = mouseX+mouseY;
                     cursor.style.left = mouseX + 'px';
                     cursor.style.top = mouseY + 'px';
@@ -157,14 +183,21 @@ function checkCollisions() {
                     if (Math.abs(slideVelX) < 0.01) slideVelX = 0;
                     if (Math.abs(slideVelY) < 0.01) slideVelY = 0;
                     slidePosX = clampMousePos(slidePosX);
-                    slidePosY = clampMousePos(slidePosY, 50);
+                    slidePosY = clampMousePos(slidePosY, true, 50);
                     cursor.style.left = slidePosX + 'px';
                     cursor.style.top = slidePosY + 'px';
                     break;
             }
         }
         cursor.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`; 
+
+        if(screenChanged !== window.innerHeight+window.innerWidth){
+            document.querySelectorAll('.random-circle').forEach(circle => circle.remove());
+            createRandomCircles();
+        }
+        screenChanged = window.innerWidth+window.innerHeight;
         checkCollisions();
+        aspectRatioCheck();
         requestAnimationFrame(update);
     }
 })();
