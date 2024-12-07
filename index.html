@@ -87,6 +87,7 @@
     <label for="circleCountSlider">Circle Count:</label>
     <input type="range" id="circleCountSlider" min="1" max="20" value="10" oninput="updateCircleCountDisplay(this.value)">
     <span id="circleCountDisplay">10</span>
+    <button onclick="start();">Start Round</button>
   </div>
   <div class="nocursor" onclick="requestPointerLock()">
     <div id="cursor">
@@ -149,6 +150,7 @@
           tempHide = true;
           document.getElementById("screenAlert").classList.add('hidden');
       }
+      
       function dontShowAgain(){
         setCookie('promptAccepted', 'true', 7);
         document.getElementById("screenAlert").classList.add('hidden');

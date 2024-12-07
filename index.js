@@ -23,6 +23,14 @@ if (tutorialMode === null || tutorialMode === true) {
 }
 let tutStage = 0;
 
+function start(){
+    clickedCircles = 0;
+    requestPointerLock();
+    updateCircleCountDisplay(circleCount);
+    document.getElementById('circleCountSlider').value = circleCount;
+    let timeStart = Date.now();
+}
+
 function showScreenAlert(message, show = true){
     if (show) {
         if(getCookie("promptAccepted") !== "true" && !tempHide){
@@ -64,6 +72,9 @@ document.addEventListener('click', (event) => {
         if(circle.style.backgroundColor == "blue"){ // more efficient than actual collision check
             circle.classList.add('clicked');
             clickedCircles++;
+        }
+        if(clickedCircles>=circleCount){
+            // Finish and submit score
         }
     });
 });
