@@ -15,8 +15,19 @@
       #cursor{
         position:absolute;
         width: 20px;
-        transform-origin: 50% 50%; /* Changed to center the cursor for rotation */
+        transform-origin: 50% 50%; 
         z-index: 2;
+        width: 20px;
+        height: 30px;
+      }
+      #collision-point {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: transparent;
+        left: 5%;
+        top: 5%;
+        transform: translate(-50%, -50%);
       }
       .nocursor{
         display: flex;
@@ -40,15 +51,18 @@
 <body>
   <div class="topbar">
     <button onclick="setMode(0)">Normal</button>
-    <button onclick="setMode(2)">Wonky</button>
     <button onclick="setMode(1)">Wobbly</button>
+    <button onclick="setMode(2)">Wonky</button>
     <button onclick="setMode(3)">Icy</button>
     <label for="circleCountSlider">Circle Count:</label>
     <input type="range" id="circleCountSlider" min="1" max="100" value="10" oninput="updateCircleCountDisplay(this.value)">
     <span id="circleCountDisplay">10</span>
   </div>
   <div class="nocursor" onclick="requestPointerLock()">
-    <img id="cursor" draggable="false" src="./cursor.svg">
+    <div id="cursor">
+      <div id="collision-point"></div>
+      <img id="cursor" draggable="false" src="./cursor.svg">
+    </div>
   </div>
   <script src="./index.js"></script>
 </body>

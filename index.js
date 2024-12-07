@@ -57,6 +57,31 @@ function createRandomCircles() {
     }
 }
 
+function isColliding(circle, collisionPointX, collisionPointY, widthFactor = 3, heightFactor = 3) {
+    const circleRect = circle.getBoundingClientRect();
+    return !(circleRect.right < collisionPointX - widthFactor ||
+             circleRect.left > collisionPointX + widthFactor ||
+             circleRect.bottom < collisionPointY - heightFactor ||
+             circleRect.top > collisionPointY + heightFactor);
+}
+
+function checkCollisions() {
+    const collisionPoint = document.getElementById('collision-point');
+    const collisionRect = collisionPoint.getBoundingClientRect();
+    const collisionPointX = collisionRect.left + collisionRect.width / 2;
+    const collisionPointY = collisionRect.top + collisionRect.height / 2;
+    const widthFactor = collisionRect.width / 2;
+    const heightFactor = collisionRect.height / 2;
+    const circles = document.querySelectorAll('.random-circle');
+    circles.forEach(circle => {
+        if (isColliding(circle, collisionPointX, collisionPointY, widthFactor, heightFactor)) {
+            circle.style.backgroundColor = 'blue';
+        } else {
+            circle.style.backgroundColor = 'red';
+        }
+    });
+}
+
 (function() {
     var lastTime = performance.now();
 
@@ -139,6 +164,7 @@ function createRandomCircles() {
             }
         }
         cursor.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`; 
+        checkCollisions();
         requestAnimationFrame(update);
     }
 })();
