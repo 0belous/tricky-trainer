@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cursor Things</title>
     <style>
       body{
@@ -42,6 +42,7 @@
         padding-left: 30px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
       }
       .topbar > *{
         margin-right: 10px;
@@ -76,18 +77,36 @@
         border-radius: 20px;
         border: 1px solid black;
       }
+      .right {
+        margin-left: auto;
+        margin-right: 20px;
+        display: flex;
+        align-items: center; /* Vertically center the items */
+      }
+      .right *>{
+        margin-right: 10px;
+      }
+      .right #timer {
+        margin-right: 20px;
+      }
     </style>
 </head>
 <body>
   <div class="topbar" id="topbar">
-    <button class="modeSel" onclick="setMode(0)">Normal</button>
-    <button class="modeSel" onclick="setMode(1)">Wobbly</button>
-    <button class="modeSel" onclick="setMode(2)">Wonky</button>
-    <button class="modeSel" onclick="setMode(3)">Icy</button>
-    <label for="circleCountSlider">Circle Count:</label>
-    <input type="range" id="circleCountSlider" min="1" max="20" value="10" oninput="updateCircleCountDisplay(this.value)">
-    <span id="circleCountDisplay">10</span>
-    <button onclick="start();">Start Round</button>
+    <div>
+      <button class="modeSel" onclick="setMode(0)">Normal</button>
+      <button class="modeSel" onclick="setMode(1)">Wobbly</button>
+      <button class="modeSel" onclick="setMode(2)">Wonky</button>
+      <button class="modeSel" onclick="setMode(3)">Icy</button>
+      <label for="circleCountSlider">Circle Count:</label>
+      <input type="range" id="circleCountSlider" min="1" max="20" value="10" oninput="updateCircleCountDisplay(this.value)">
+      <span id="circleCountDisplay">10</span>
+      <button onclick="reset();">Reset</button>
+    </div>
+    <div class="right">
+      <span id="timer" class="hidden">0.0</span>
+      <button id="login">Log In</button>
+    </div>
   </div>
   <div class="nocursor" onclick="requestPointerLock()">
     <div id="cursor">
@@ -100,7 +119,7 @@
     <strong id="message"></strong>
     <p>Small screen sizes provide a competitive advantage so leaderboard submissions will be disabled.</p>
     <p>If you believe your screen size should be compatible, <a target="_blank" href="https://github.com/0belous/cursor-things/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%5BBug%5D+Your+issue+title">create a bug report</a></p>
-    <button onClick="ignoreAlert()">Ignore</button> <button onClick="dontShowAgain();">Don't show again</button>
+    <button>Ignore</button> <button onClick="dontShowAgain();">Don't show again</button>
   </div>
   <div class="hidden tutPrompt" id="tut1">
     <h1>Welcome!</h1>
@@ -157,5 +176,6 @@
       }
   </script>
   <script src="./index.js"></script>
+  <script type="module" src="./db.js"></script>
 </body>
 </html>

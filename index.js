@@ -16,6 +16,9 @@ let circleCount = 10;
 let screenChanged = 0;
 let velHistory = [];
 let clickedCircles = 0;
+let oldClicked = 0;
+let timeStart = Date.now();
+let timeEnd = Date.now();
 let tutorialMode = getCookie("tutorial");
 if (tutorialMode === null || tutorialMode === true) {
     setCookie("tutorial", "true", 30);
@@ -23,12 +26,10 @@ if (tutorialMode === null || tutorialMode === true) {
 }
 let tutStage = 0;
 
-function start(){
+function reset(){
     clickedCircles = 0;
-    requestPointerLock();
     updateCircleCountDisplay(circleCount);
     document.getElementById('circleCountSlider').value = circleCount;
-    let timeStart = Date.now();
 }
 
 function showScreenAlert(message, show = true){
@@ -69,11 +70,11 @@ function clampMousePos(inX, inHeight=false, inOffset=0){
 
 document.addEventListener('click', (event) => {
     document.querySelectorAll('.random-circle').forEach(circle => {
-        if(circle.style.backgroundColor == "blue"){ // more efficient than actual collision check
+        if(circle.style.backgroundColor == "blue" && !circle.classList.contains('clicked')){ // more efficient than actual collision check
             circle.classList.add('clicked');
             clickedCircles++;
         }
-        if(clickedCircles>=circleCount){
+        if(clickedCircles >= circleCount){
             // Finish and submit score
         }
     });
@@ -134,6 +135,12 @@ function checkCollisions() {
             circle.style.backgroundColor = 'red';
         }
     });
+}
+
+function updateLoginButton(username) {
+    const loginButton = document.getElementById('login');
+    loginButton.textContent = username;
+    loginButton.disabled = true;
 }
 
 (function() {
@@ -223,6 +230,21 @@ function checkCollisions() {
             createRandomCircles();
         }
 
+        if(clickedCircles == 1 && oldClicked == 0){
+            timeStart = Date.now();
+            document.getElementById("timer").classList.remove('hidden');
+        } else if(clickedCircles >= circleCount){
+            timeEnd = Date.now();
+            document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
+            reset();
+        } else if(clickedCircles < circleCount){
+            document.getElementById('timer').textContent = (Date.now() - timeStart) / 1000;
+        } if(clickedCircles == 0){
+            document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
+        }
+        oldClicked = clickedCircles; 
+        
+        
         screenChanged = window.innerWidth+window.innerHeight;
         if (tutorialMode == true) {
             hidePrompts();
