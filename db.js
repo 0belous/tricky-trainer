@@ -26,14 +26,25 @@ function saveTime(userId, mode, time) {
   const modeCategories = ['normal', 'wobbly', 'wonky', 'icy'];
   const modeCategory = modeCategories[mode];
   const userRef = ref(database, `users/${userId}/scores/${modeCategory}`);
+  const topScoreRef = ref(database, `users/${userId}/topScores/${modeCategory}`);
 
   get(userRef).then((snapshot) => {
     let scores = snapshot.val() || [];
     scores.push(time);
     set(userRef, scores);
+
+    // Update top score for the category
+    const topScore = Math.min(...scores);
+    set(topScoreRef, topScore);
   }).catch((error) => {
     console.error("Error saving time:", error);
   });
+}
+
+function updateLoginButton(username) {
+  const loginButton = document.getElementById('login');
+  loginButton.textContent = username;
+  loginButton.disabled = true;
 }
 
 function loginWithGithub() {
@@ -53,6 +64,12 @@ function loginWithGithub() {
               wobbly: [],
               wonky: [],
               icy: []
+            },
+            topScores: {
+              normal: null,
+              wobbly: null,
+              wonky: null,
+              icy: null
             }
           });
         }
@@ -64,4 +81,21 @@ function loginWithGithub() {
     });
 }
 
+function handleAuthStateChange() {
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      const userRef = ref(database, 'users/' + user.uid);
+      get(userRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          updateLoginButton(user.displayName);
+        }
+      });
+    }
+  });
+}
+
 document.getElementById('login').addEventListener('click', loginWithGithub);
+
+handleAuthStateChange();
+
+export { getUserId, saveTime, updateLoginButton };

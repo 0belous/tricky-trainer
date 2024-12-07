@@ -1,3 +1,5 @@
+import { getUserId, saveTime, updateLoginButton } from './db.js';
+
 let cursor = document.getElementById('cursor');
 let angle = 0;
 let angleVel = 0;
@@ -14,6 +16,7 @@ let slidePosY = 0.0;
 let velAverage = 0.0;
 let circleCount = 10;
 let screenChanged = 0;
+let vel = 0;
 let velHistory = [];
 let clickedCircles = 0;
 let oldClicked = 0;
@@ -73,9 +76,6 @@ document.addEventListener('click', (event) => {
         if(circle.style.backgroundColor == "blue" && !circle.classList.contains('clicked')){ // more efficient than actual collision check
             circle.classList.add('clicked');
             clickedCircles++;
-        }
-        if(clickedCircles >= circleCount){
-            // Finish and submit score
         }
     });
 });
@@ -137,12 +137,6 @@ function checkCollisions() {
     });
 }
 
-function updateLoginButton(username) {
-    const loginButton = document.getElementById('login');
-    loginButton.textContent = username;
-    loginButton.disabled = true;
-}
-
 (function() {
     var lastTime = performance.now();
 
@@ -169,21 +163,21 @@ function updateLoginButton(username) {
     function update() {
         var currentTime = performance.now();
         lastTime = currentTime;
-        if (mouseX && mouseY>50) {
-            vel = movementX+movementY;
-            if(velHistory.length<10){
+        if (mouseX && mouseY > 50) {
+            vel = movementX + movementY;
+            if (velHistory.length < 10) {
                 velHistory.push(vel);
                 velAverage = vel;
-            } else{ 
+            } else {
                 velHistory.shift();
                 velHistory.push(vel);
                 total = 0;
-                for(let i=0; i<10; i++){
+                for (let i = 0; i < 10; i++) {
                     total += velHistory[i];
                 }
-                velAverage = total/10;
+                velAverage = total / 10;
             }
-            switch(mode){
+            switch (mode) {
                 case 0:
                     mouseX = clampMousePos(mouseX);
                     mouseY = clampMousePos(mouseY, true, 50);
@@ -193,14 +187,14 @@ function updateLoginButton(username) {
                 case 1:
                     mouseX = clampMousePos(mouseX);
                     mouseY = clampMousePos(mouseY, true, 50);
-                    angle = Math.min(Math.max(velAverage*20 ,-90), 90);
+                    angle = Math.min(Math.max(velAverage * 20, -90), 90);
                     cursor.style.left = mouseX + 'px';
                     cursor.style.top = mouseY + 'px';
                     break;
                 case 2:
                     mouseX = clampMousePos(mouseX);
                     mouseY = clampMousePos(mouseY, true, 50);
-                    angle = mouseX+mouseY;
+                    angle = mouseX + mouseY;
                     cursor.style.left = mouseX + 'px';
                     cursor.style.top = mouseY + 'px';
                     break;
@@ -208,7 +202,7 @@ function updateLoginButton(username) {
                     if (Math.abs(movementX) > 80 || Math.abs(movementY) > 80) {
                         break;
                     }
-                    slideVelX += movementX * 0.01; 
+                    slideVelX += movementX * 0.01;
                     slideVelY += movementY * 0.01;
                     slidePosX += slideVelX;
                     slidePosY += slideVelY;
@@ -223,32 +217,36 @@ function updateLoginButton(username) {
                     break;
             }
         }
-        cursor.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`; 
+        cursor.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
-        if(screenChanged !== window.innerHeight+window.innerWidth){
+        if (screenChanged !== window.innerHeight + window.innerWidth) {
             document.querySelectorAll('.random-circle').forEach(circle => circle.remove());
             createRandomCircles();
         }
 
-        if(clickedCircles == 1 && oldClicked == 0){
+        if (clickedCircles == 1 && oldClicked == 0) {
             timeStart = Date.now();
             document.getElementById("timer").classList.remove('hidden');
-        } else if(clickedCircles >= circleCount){
+        } else if (clickedCircles >= circleCount) {
             timeEnd = Date.now();
-            document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
+            const timeTaken = (timeEnd - timeStart) / 1000;
+            document.getElementById('timer').textContent = timeTaken;
+            const userId = getUserId();
+            if (userId) {
+                saveTime(userId, mode, timeTaken);
+            }
             reset();
-        } else if(clickedCircles < circleCount){
+        } else if (clickedCircles < circleCount) {
             document.getElementById('timer').textContent = (Date.now() - timeStart) / 1000;
-        } if(clickedCircles == 0){
+        } if (clickedCircles == 0) {
             document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
         }
-        oldClicked = clickedCircles; 
-        
-        
-        screenChanged = window.innerWidth+window.innerHeight;
+        oldClicked = clickedCircles;
+
+        screenChanged = window.innerWidth + window.innerHeight;
         if (tutorialMode == true) {
             hidePrompts();
-            switch(tutStage) {
+            switch (tutStage) {
                 case 0:
                     document.getElementById('topbar').classList.add('hidden');
                     updateCircleCountDisplay(3);
@@ -258,7 +256,7 @@ function updateLoginButton(username) {
                 case 1:
                     document.getElementById('tut1').classList.remove('hidden');
                     mode = 0;
-                    if(clickedCircles==3){
+                    if (clickedCircles == 3) {
                         tutStage = 2;
                         clickedCircles = 0;
                     }
@@ -267,42 +265,42 @@ function updateLoginButton(username) {
                     document.getElementById('topbar').classList.remove('hidden')
                     document.querySelectorAll('.modeSel').forEach(mode => mode.classList.add('hidden'));
                     document.getElementById('tut2').classList.remove('hidden');
-                    if(circleCount == 5){
+                    if (circleCount == 5) {
                         tutStage = 3;
                     }
                     break;
                 case 3:
-                    if(circleCount != 5){
+                    if (circleCount != 5) {
                         updateCircleCountDisplay(5)
                         document.getElementById('circleCountSlider').value = 5;
                     }
                     document.getElementById('tut3').classList.remove('hidden');
-                    if(clickedCircles==5){
+                    if (clickedCircles == 5) {
                         tutStage = 4;
                     }
                     break;
                 case 4:
                     document.getElementById('tut4').classList.remove('hidden');
                     document.querySelectorAll('.modeSel').forEach(mode => mode.classList.remove('hidden'));
-                    if(mode == 2){
+                    if (mode == 2) {
                         tutStage = 5;
                     }
                     break;
                 case 5:
-                    if(clickedCircles ==5){
+                    if (clickedCircles == 5) {
                         updateCircleCountDisplay(5)
                         document.getElementById('circleCountSlider').value = 5;
                         clickedCircles++;
                     }
                     document.getElementById('tut5').classList.remove('hidden');
-                    if(clickedCircles == 11){
+                    if (clickedCircles == 11) {
                         document.getElementById('tut5').classList.add('hidden');
                         tutorialMode = false;
                         clickedCircles = 0;
                         setCookie("tutorial", "false", 30);
                     }
                     break;
-                    
+
             }
         } else {
             aspectRatioCheck();
