@@ -22,12 +22,15 @@ let clickedCircles = 0;
 let oldClicked = 0;
 let timeStart = Date.now();
 let timeEnd = Date.now();
-let tutorialMode = getCookie("tutorial");
-if (tutorialMode === null || tutorialMode === true) {
+let tutorialMode;
+let tutorialCookie = getCookie("tutorial");
+if (tutorialCookie === null) {
     setCookie("tutorial", "true", 30);
     tutorialMode = true;
+} else {
+    tutorialMode = (tutorialCookie === "true");
 }
-// Expose tutStage to the global scope
+
 window.tutStage = 0;
 updateLeaderboard();
 
@@ -318,7 +321,6 @@ window.updateLeaderboard = updateLeaderboard;
             }
         }
         oldClicked = clickedCircles;
-        console.log(clickedCircles)
 
         screenChanged = window.innerWidth + window.innerHeight;
         if (tutorialMode == true) {
