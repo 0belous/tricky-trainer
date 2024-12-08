@@ -162,6 +162,7 @@
   <div class="hidden tutPrompt" id="tut1">
     <h1>Welcome!</h1>
     <h2>Click the circles.</h2>
+    <button onclick="skipTutorial();">Skip tutorial</button>
   </div>
   <div class="hidden tutPrompt" id="tut2">
     <h1>Lets add some more</h1>
@@ -178,6 +179,12 @@
   <div class="hidden tutPrompt" id="tut5">
     <h1>Thats it!</h1>
     <h2>Now click the circles as fast as possible!</h2>
+  </div>
+  <div class="hidden tutPrompt" id="tut6">
+    <h1>Tutorial complete</h1>
+    <h2>Log in to submit your scores.</h2>
+    <h2>Now go and explore the modes!</h2>
+    <button onclick="finishTutorial();">Finish</button>
   </div>
   <script>
       function setCookie(name, value, days) {

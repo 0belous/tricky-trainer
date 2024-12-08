@@ -27,7 +27,8 @@ if (tutorialMode === null || tutorialMode === true) {
     setCookie("tutorial", "true", 30);
     tutorialMode = true;
 }
-let tutStage = 0;
+// Expose tutStage to the global scope
+window.tutStage = 0;
 updateLeaderboard();
 
 let disableScoreSubmission = false;
@@ -287,26 +288,29 @@ window.updateLeaderboard = updateLeaderboard;
             createRandomCircles();
         }
 
+        if(!tutorialMode){
         if (clickedCircles == 1 && oldClicked == 0) {
-            timeStart = Date.now();
-            document.getElementById("timer").classList.remove('hidden');
-            disableControls();
-        } else if (clickedCircles >= circleCount) {
-            timeEnd = Date.now();
-            const timeTaken = (timeEnd - timeStart) / 1000;
-            document.getElementById('timer').textContent = timeTaken;
-            const userId = getUserId();
-            if (userId && !disableScoreSubmission) {
-                saveTime(userId, mode, timeTaken);
+                timeStart = Date.now();
+                document.getElementById("timer").classList.remove('hidden');
+                disableControls();
+            } else if (clickedCircles >= circleCount) {
+                timeEnd = Date.now();
+                const timeTaken = (timeEnd - timeStart) / 1000;
+                document.getElementById('timer').textContent = timeTaken;
+                const userId = getUserId();
+                if (userId && !disableScoreSubmission) {
+                    saveTime(userId, mode, timeTaken);
+                }
+                reset();
+                enableControls();
+            } else if (clickedCircles < circleCount) {
+                document.getElementById('timer').textContent = (Date.now() - timeStart) / 1000;
+            } if (clickedCircles == 0) {
+                document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
             }
-            reset();
-            enableControls();
-        } else if (clickedCircles < circleCount) {
-            document.getElementById('timer').textContent = (Date.now() - timeStart) / 1000;
-        } if (clickedCircles == 0) {
-            document.getElementById('timer').textContent = (timeEnd - timeStart) / 1000;
         }
         oldClicked = clickedCircles;
+        console.log(clickedCircles)
 
         screenChanged = window.innerWidth + window.innerHeight;
         if (tutorialMode == true) {
@@ -328,7 +332,7 @@ window.updateLeaderboard = updateLeaderboard;
                     break;
                 case 2:
                     document.getElementById('topbar').classList.remove('hidden')
-                    document.querySelectorAll('.modeSel').forEach(mode => mode.classList.add('hidden'));
+                    document.querySelectorAll('.modeSel').forEach(button => button.classList.add('hidden'));
                     document.getElementById('tut2').classList.remove('hidden');
                     if (circleCount == 5) {
                         tutStage = 3;
@@ -342,30 +346,31 @@ window.updateLeaderboard = updateLeaderboard;
                     document.getElementById('tut3').classList.remove('hidden');
                     if (clickedCircles == 5) {
                         tutStage = 4;
+                        clickedCircles = 0;
                     }
                     break;
                 case 4:
                     document.getElementById('tut4').classList.remove('hidden');
-                    document.querySelectorAll('.modeSel').forEach(mode => mode.classList.remove('hidden'));
+                    document.querySelectorAll('.modeSel').forEach(button => button.classList.remove('hidden'));
                     if (mode == 2) {
                         tutStage = 5;
+                        reset();
                     }
                     break;
                 case 5:
-                    if (clickedCircles == 5) {
-                        updateCircleCountDisplay(5)
-                        document.getElementById('circleCountSlider').value = 5;
-                        clickedCircles++;
-                    }
                     document.getElementById('tut5').classList.remove('hidden');
-                    if (clickedCircles == 11) {
-                        document.getElementById('tut5').classList.add('hidden');
-                        tutorialMode = false;
+                    if (clickedCircles == 5) {
                         clickedCircles = 0;
-                        setCookie("tutorial", "false", 30);
+                        tutStage = 6;
                     }
                     break;
-
+                case 6:
+                    document.getElementById('tut6').classList.remove('hidden');
+                    break;
+                case 8:
+                    setCookie("tutorial", "false", 30);
+                    tutorialMode = false;
+                    break;
             }
         } else {
             aspectRatioCheck();
@@ -392,7 +397,21 @@ function setMode(modeIn){
     mode = modeIn;
     mouseX = window.innerWidth/2;
     mouseY = window.innerHeight/2;
+    slidePosX = window.innerWidth/2;
+    slidePosY = window.innerHeight/2;
     updateLeaderboard();
 }
 
 window.setMode = setMode;
+
+// Define functions to handle tutorial navigation
+function skipTutorial() {
+    tutStage = 8;
+}
+
+function finishTutorial() {
+    tutStage = 8;
+}
+
+window.skipTutorial = skipTutorial;
+window.finishTutorial = finishTutorial;
