@@ -101,6 +101,19 @@
         padding: 10px;
         z-index: 10;
       }
+      #explain{
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        background-color: white;
+        border: 1px solid black;
+        padding: 20px;
+        z-index: 5;
+      }
+      li{
+        font-size: 20px;
+      }
     </style>
 </head>
 <body>
@@ -126,6 +139,17 @@
       <div id="collision-point"></div>
       <img id="cursor" draggable="false" src="./cursor.svg">
     </div>
+  </div>
+  <div id="explain" class="hidden">
+    <h1>Score submission is disabled</h1>
+    <h2>Please ensure you meet these requirements:</h2>
+    <ul>
+      <li>Browser is fullscreened and sidebars are closed</li>
+      <li>Monitor is >720p</li>
+      <li>Monitor is widescreen</li>
+      <li>You are logged in</li>
+      <li>You are playing with a circle count of 10</li>
+    </ul>
   </div>
   <div id="leaderboard"></div>
   <div id="screenAlert" class="hidden alert">
