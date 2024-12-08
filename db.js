@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebas
 import { getAuth, signInWithPopup, GithubAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA5NAsIM2YmvmmbXB27dxfMQ1CCUg7XBCk",
   authDomain: "version2-38369.firebaseapp.com",
@@ -13,7 +12,6 @@ const firebaseConfig = {
   appId: "1:828991288118:web:e34209d4e6d55c4db1f997"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -33,7 +31,6 @@ function saveTime(userId, mode, time) {
     scores.push(time);
     set(userRef, scores);
 
-    // Update top score for the category
     const topScore = Math.min(...scores);
     set(topScoreRef, topScore);
   }).catch((error) => {
@@ -94,8 +91,29 @@ function handleAuthStateChange() {
   });
 }
 
+function getTopScores(mode) {
+  const modeCategories = ['normal', 'wobbly', 'wonky', 'icy'];
+  const modeCategory = modeCategories[mode];
+  const scoresRef = ref(database, 'users');
+
+  return get(scoresRef).then((snapshot) => {
+    const users = snapshot.val();
+    const scores = [];
+
+    for (const userId in users) {
+      const user = users[userId];
+      if (user.topScores && user.topScores[modeCategory] !== null) {
+        scores.push({ username: user.username, score: user.topScores[modeCategory] });
+      }
+    }
+
+    scores.sort((a, b) => a.score - b.score);
+    return scores.slice(0, 10);
+  });
+}
+
 document.getElementById('login').addEventListener('click', loginWithGithub);
 
 handleAuthStateChange();
 
-export { getUserId, saveTime, updateLoginButton };
+export { getUserId, saveTime, updateLoginButton, getTopScores };

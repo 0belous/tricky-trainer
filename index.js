@@ -1,4 +1,4 @@
-import { getUserId, saveTime, updateLoginButton } from './db.js';
+import { getUserId, saveTime, updateLoginButton, getTopScores } from './db.js';
 
 let cursor = document.getElementById('cursor');
 let angle = 0;
@@ -11,8 +11,8 @@ let mode = 0;
 let total = 0;
 let slideVelX = 0.0;
 let slideVelY = 0.0;
-let slidePosX = 0.0;
-let slidePosY = 0.0;
+let slidePosX = window.innerWidth/2;
+let slidePosY = window.innerHeight/2;
 let velAverage = 0.0;
 let circleCount = 10;
 let screenChanged = 0;
@@ -28,33 +28,58 @@ if (tutorialMode === null || tutorialMode === true) {
     tutorialMode = true;
 }
 let tutStage = 0;
+updateLeaderboard();
 
-function reset(){
+let disableScoreSubmission = false;
+
+function updateCircleCountDisplay(value) {
+    document.getElementById('circleCountDisplay').innerText = value;
+    setCircleCount(parseInt(value, 10));
+}
+
+window.updateCircleCountDisplay = updateCircleCountDisplay;
+
+function reset() {
+    angle = 0;
     clickedCircles = 0;
     updateCircleCountDisplay(circleCount);
     document.getElementById('circleCountSlider').value = circleCount;
+    enableControls();
+    updateLeaderboard();
 }
+
+window.reset = reset;
 
 function showScreenAlert(message, show = true){
     if (show) {
         if(getCookie("promptAccepted") !== "true" && !tempHide){
             document.getElementById("screenAlert").classList.remove('hidden');
             document.getElementById("message").textContent = message;
+            disableScoreSubmission = true;
         }
     } else {
         document.getElementById("screenAlert").classList.add('hidden');
+        disableScoreSubmission = false;
     }
 }
 
 function aspectRatioCheck(){
     if(window.innerWidth < (screen.width - 300) || window.innerHeight < (screen.height - 300)){
         showScreenAlert("Fullscreen your browser, or disable any toolbars/sidebars that make this website smaller.");
+        document.getElementById('error').classList.remove('hidden');
+        disableScoreSubmission = true;
     } else if(screen.width < 1280 || screen.height < 720){
         showScreenAlert("Monitors less than 720p are not supported");
+        document.getElementById('error').classList.remove('hidden');
+        disableScoreSubmission = true;
     } else if((screen.width / screen.height) < 1.5){
         showScreenAlert("Please use a widescreen monitor");
+        document.getElementById('error').classList.remove('hidden');
+        disableScoreSubmission = true;
     } else {
         showScreenAlert("", false); 
+        document.getElementById('error').classList.add('hidden');
+        disableScoreSubmission = false;
     }
 }
 
@@ -84,11 +109,6 @@ document.getElementById("circleCountSlider").addEventListener('input', function(
     updateCircleCountDisplay(event.target.value);
 });
 
-function updateCircleCountDisplay(value) {
-    document.getElementById('circleCountDisplay').innerText = value;
-    setCircleCount(value);
-}
-
 function setCircleCount(count) {
     circleCount = count;
     document.querySelectorAll('.random-circle').forEach(circle => circle.remove());
@@ -107,7 +127,7 @@ function createRandomCircles() {
         circle.style.borderRadius = '50%';
         circle.style.zIndex = '1';
         circle.style.left = Math.random() * (window.innerWidth - margin * 2) + margin + 'px';
-        circle.style.top = (Math.random() * (window.innerHeight - 60 - margin)) + 60 + 'px'; // offset for navbar and margin
+        circle.style.top = (Math.random() * (window.innerHeight - 60 - margin)) + 60 + 'px'; 
         document.body.appendChild(circle);
     }
 }
@@ -136,6 +156,36 @@ function checkCollisions() {
         }
     });
 }
+
+function disableControls() {
+    document.getElementById('circleCountSlider').disabled = true;
+    document.querySelectorAll('.modeSel').forEach(button => button.disabled = true);
+    document.getElementById('leaderboard').classList.add('hidden');
+}
+
+function enableControls() {
+    document.getElementById('circleCountSlider').disabled = false;
+    document.querySelectorAll('.modeSel').forEach(button => button.disabled = false);
+    document.getElementById('leaderboard').classList.remove('hidden');
+}
+
+function displayLeaderboard(scores) {
+    const leaderboard = document.getElementById('leaderboard');
+    leaderboard.innerHTML = '';
+    scores.forEach((score, index) => {
+        const scoreElement = document.createElement('div');
+        scoreElement.textContent = `${index + 1}. ${score.username}: ${score.score}`;
+        leaderboard.appendChild(scoreElement);
+    });
+}
+
+function updateLeaderboard() {
+    getTopScores(mode).then(displayLeaderboard).catch((error) => {
+        console.error("Error fetching leaderboard:", error);
+    });
+}
+
+window.updateLeaderboard = updateLeaderboard;
 
 (function() {
     var lastTime = performance.now();
@@ -227,15 +277,17 @@ function checkCollisions() {
         if (clickedCircles == 1 && oldClicked == 0) {
             timeStart = Date.now();
             document.getElementById("timer").classList.remove('hidden');
+            disableControls();
         } else if (clickedCircles >= circleCount) {
             timeEnd = Date.now();
             const timeTaken = (timeEnd - timeStart) / 1000;
             document.getElementById('timer').textContent = timeTaken;
             const userId = getUserId();
-            if (userId) {
+            if (userId && !disableScoreSubmission) {
                 saveTime(userId, mode, timeTaken);
             }
             reset();
+            enableControls();
         } else if (clickedCircles < circleCount) {
             document.getElementById('timer').textContent = (Date.now() - timeStart) / 1000;
         } if (clickedCircles == 0) {
@@ -315,7 +367,11 @@ function hidePrompts(){
 }
 
 function setMode(modeIn){
+    angle = 0;
     mode = modeIn;
     mouseX = window.innerWidth/2;
     mouseY = window.innerHeight/2;
+    updateLeaderboard();
 }
+
+window.setMode = setMode;

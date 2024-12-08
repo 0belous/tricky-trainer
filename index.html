@@ -90,7 +90,16 @@
         margin-right: 20px;
       }
       #error{
-        width: 25px;
+        width: 20px;
+      }
+      #leaderboard {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background-color: white;
+        border: 1px solid black;
+        padding: 10px;
+        z-index: 10;
       }
     </style>
 </head>
@@ -118,6 +127,7 @@
       <img id="cursor" draggable="false" src="./cursor.svg">
     </div>
   </div>
+  <div id="leaderboard"></div>
   <div id="screenAlert" class="hidden alert">
     <h1>There is an issue with your screen size:</h1>
     <strong id="message"></strong>
