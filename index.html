@@ -128,7 +128,7 @@
       <span id="circleCountDisplay">10</span>
       <button onclick="reset();">Reset</button>
     </div>
-    <div class="right">
+    <div class="right" id="right">
       <svg id="error" class="hidden" height="32" style="overflow:visible;enable-background:new 0 0 32 32" viewBox="0 0 32 32" width="32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><g id="Error_1_"><g id="Error"><circle cx="16" cy="16" id="BG" r="16" style="fill:#D72828;"/><path d="M14.5,25h3v-3h-3V25z M14.5,6v13h3V6H14.5z" id="Exclamatory_x5F_Sign" style="fill:#E6E6E6;"/></g></g></g></svg>
       <span id="timer" class="hidden">0.0</span>
       <button id="login">Log In</button>
@@ -157,7 +157,7 @@
     <strong id="message"></strong>
     <p>Small screen sizes provide a competitive advantage so leaderboard submissions will be disabled.</p>
     <p>If you believe your screen size should be compatible, <a target="_blank" href="https://github.com/0belous/cursor-things/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%5BBug%5D+Your+issue+title">create a bug report</a></p>
-    <button>Ignore</button> <button onClick="dontShowAgain();">Don't show again</button>
+    <button onclick="ignoreAlert();">Ignore</button> <button onclick="dontShowAgain();">Don't show again</button>
   </div>
   <div class="hidden tutPrompt" id="tut1">
     <h1>Welcome!</h1>
@@ -207,12 +207,6 @@
 
       function deleteCookie(name) {
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-      }
-
-      let tempHide = false;
-      function ignoreAlert() {
-          tempHide = true;
-          document.getElementById("screenAlert").classList.add('hidden');
       }
       
       function dontShowAgain(){
